@@ -1,11 +1,25 @@
 import { StyleSheet } from "react-native";
 import { VStack, Center, Heading, View, ScrollView } from "native-base";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Button } from "native-base";
 import { RootTabScreenProps } from "../types";
-
+import { getSequences } from "../api/storage";
+import { useIsFocused } from "@react-navigation/native";
 export default function Home({ navigation }: RootTabScreenProps<"Home">) {
-  return (
+  const [sequences, setSequences] = useState<Array<any>>([])
+  const isFocused = useIsFocused(); //forces re-render when comming back to this page some how the context change doesn't do it
+  useEffect(()=>{
+    async function retreiveSequences() {
+      const seq = await getSequences()
+      console.log('SEQ', seq)
+      setSequences(seq)
+    }    
+    retreiveSequences()
+  }, [])
+
+
+
+  return  (isFocused && (
     <View style={{ flex: 1 }}>
       <View>
         <Heading textAlign="center" mb="10">
@@ -14,23 +28,18 @@ export default function Home({ navigation }: RootTabScreenProps<"Home">) {
       </View>
       <ScrollView>
         <VStack space={4} alignItems="center">
-          <Button
+        {sequences.map(sequence=>(
+        <Button
             w="64"
-            h="20"
+            h="10"
             bg="emerald.500"
-            onPress={() => navigation.push("Run")}
+            onPress={() => navigation.navigate("Run",  { sequenceName:sequence.name, sequenceId: sequence.id })}
+            key={sequence.name.replace(' ','-')}
             rounded="md"
             shadow={3}
-          />
-          <Button w="64" h="20" bg="emerald.500" rounded="md" shadow={3} />
-          <Button w="64" h="20" bg="emerald.500" rounded="md" shadow={3} />
-          <Button w="64" h="20" bg="emerald.500" rounded="md" shadow={3} />
-
-          <Button w="64" h="20" bg="emerald.500" rounded="md" shadow={3} />
-          <Button w="64" h="20" bg="emerald.500" rounded="md" shadow={3} />
-          <Button w="64" h="20" bg="emerald.500" rounded="md" shadow={3} />
-          <Button w="64" h="20" bg="emerald.500" rounded="md" shadow={3} />
-          <Button w="64" h="20" bg="emerald.500" rounded="md" shadow={3} />
+          >{sequence.name }</Button>))}
+          
+  
         </VStack>
       </ScrollView>
       <View>
@@ -47,7 +56,7 @@ export default function Home({ navigation }: RootTabScreenProps<"Home">) {
         </Heading>
       </View>
     </View>
-  );
+  ));
 }
 
 const styles = StyleSheet.create({
