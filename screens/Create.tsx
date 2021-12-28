@@ -137,7 +137,7 @@ export default function Create({ navigation }: RootTabScreenProps<"Create">) {
             marginTop="3"
             onPress={() => {
               saveSequence();
-              navigation.push("Home");
+              navigation.navigate("Home");
             }}
             rounded="md"
             variant="outline"

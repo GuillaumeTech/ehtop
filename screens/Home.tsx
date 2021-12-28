@@ -7,19 +7,18 @@ import { getSequences } from "../api/storage";
 import { useIsFocused } from "@react-navigation/native";
 export default function Home({ navigation }: RootTabScreenProps<"Home">) {
   const [sequences, setSequences] = useState<Array<any>>([])
-  const isFocused = useIsFocused(); //forces re-render when comming back to this page some how the context change doesn't do it
+  const isFocused = useIsFocused(); //forces re-fetch when comming back to this page
   useEffect(()=>{
     async function retreiveSequences() {
       const seq = await getSequences()
-      console.log('SEQ', seq)
       setSequences(seq)
     }    
     retreiveSequences()
-  }, [])
+  }, [isFocused])
 
 
 
-  return  (isFocused && (
+  return  (
     <View style={{ flex: 1 }}>
       <View>
         <Heading textAlign="center" mb="10">
@@ -49,14 +48,14 @@ export default function Home({ navigation }: RootTabScreenProps<"Home">) {
             h="20"
             marginTop="3"
             bg="primary.500"
-            onPress={() => navigation.push("Create")}
+            onPress={() => navigation.navigate("Create")}
             rounded="md"
             shadow={3}
           />
         </Heading>
       </View>
     </View>
-  ));
+  );
 }
 
 const styles = StyleSheet.create({
