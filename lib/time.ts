@@ -1,4 +1,4 @@
-function secsToTime(sec: number) {
+export function secsToTime(sec: number) {
     const minutes = Math.floor(sec / (60));
     const secs = Math.floor((sec % 60));
     let minutesString = `${minutes}`;
@@ -9,7 +9,7 @@ function secsToTime(sec: number) {
   }
 
 
-function timetoSec(minutes: string, secs:string) {
+export function timetoSec(minutes: string, secs:string) {
   const safeMinutes = minutes !== "" ? minutes : "0";
   const safeSecs = secs !== "" ? secs : "0";
   const seconds = parseInt(safeMinutes) * 60  + parseInt(safeSecs);

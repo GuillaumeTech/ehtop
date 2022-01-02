@@ -3,29 +3,31 @@ import { StyleSheet } from "react-native";
 import {
   VStack,
   Input,
-  Text,
   Center,
+  Text,
   Modal,
-  Heading,
+  Flex,
   View,
   ScrollView,
 } from "native-base";
 import React, { useState } from "react";
 import { Button } from "native-base";
 import { RootTabScreenProps } from "../types";
-import { Formik } from "formik";
+import { Formik, setNestedObjectValues } from "formik";
 import { addSequence } from "../api/storage";
+import { secsToTime, timetoSec } from "../lib/time";
 
-type step = { title: string; time: number|string };
+type step = { title: string; time: number };
+type stepEntry = { title: string; seconds: string; minutes: string };
 
 export default function Create({ navigation }: RootTabScreenProps<"Create">) {
   const [steps, setSteps] = useState<Array<step>>([]);
   const [showModal, setShowModal] = useState<boolean | undefined>(false);
   const [title, setTitle] = useState<string>("");
 
-  const onAddStep = (value: step) => {
-    const time  = parseInt(value.time)
-    setSteps([...steps, {...value, time}]);
+  const onAddStep = ({ minutes, seconds, title }: stepEntry) => {
+    const time = timetoSec(minutes, seconds);
+    setSteps([...steps, { title, time }]);
   };
 
   const saveSequence = () => {
@@ -36,9 +38,9 @@ export default function Create({ navigation }: RootTabScreenProps<"Create">) {
     <Modal isOpen={showModal} onClose={() => setShowModal(false)}>
       <Modal.Content maxWidth="400px">
         <Modal.CloseButton />
-        <Modal.Header>Contact Us</Modal.Header>
+        <Modal.Header>Add a step</Modal.Header>
         <Formik
-          initialValues={{ title: "", time: "" }}
+          initialValues={{ title: "", seconds: "", minutes: "" }}
           onSubmit={(values) => onAddStep(values)}
         >
           {({ handleChange, handleBlur, handleSubmit, values }) => (
@@ -48,20 +50,51 @@ export default function Create({ navigation }: RootTabScreenProps<"Create">) {
                   placeholder="Name of the step"
                   marginX="4"
                   marginBottom="2"
+                  size="xl"
                   onChangeText={handleChange("title")}
                   onBlur={handleBlur("title")}
                   value={values.title}
                 />
-                <Input
-                  marginY="2"
-                  marginX="4"
-                  marginBottom="5"
-                  placeholder="Time on the step"
-                  keyboardType="numeric"
-                  onChangeText={handleChange("time")}
-                  onBlur={handleBlur("time")}
-                  value={values.time}
-                />
+                <Flex direction="row">
+                  <Input
+                    marginY="2"
+                    marginLeft="4"
+                    width="45%"
+                    size="2xl"
+                    marginBottom="5"
+                    placeholder="mm"
+                    keyboardType="numeric"
+                    onChangeText={(text) => {
+                      if (text === "") handleChange("minutes")(text);
+                      else if (/^[0-9]+$/.test(text)) {
+                        handleChange("minutes")(text);
+                      }
+                    }}
+                    onBlur={handleBlur("minutes")}
+                    value={values.minutes}
+                    style={styles.timeEntry}
+                    textAlign="right"
+                  />
+                  <Text fontSize="65">:</Text>
+                  <Input
+                    marginY="2"
+                    size="2xl"
+                    width="45%"
+                    marginBottom="5"
+                    placeholder="ss"
+                    keyboardType="numeric"
+                    onChangeText={(text) => {
+                      if (text === "") handleChange("seconds")(text);
+                      else if (/^[0-9]+$/.test(text)) {
+                        handleChange("seconds")(text);
+                      }
+                    }}
+                    onBlur={handleBlur("seconds")}
+                    value={values.seconds}
+                    style={styles.timeEntry}
+                    maxLength={2}
+                  />
+                </Flex>
               </Modal.Body>
               <Modal.Footer>
                 <Button.Group space={2}>
@@ -75,6 +108,9 @@ export default function Create({ navigation }: RootTabScreenProps<"Create">) {
                     Cancel
                   </Button>
                   <Button
+                    isDisabled={
+                      !values.minutes || !values.seconds || !values.title
+                    }
                     onPress={() => {
                       handleSubmit();
                       setShowModal(false);
@@ -92,79 +128,80 @@ export default function Create({ navigation }: RootTabScreenProps<"Create">) {
   );
 
   return (
-    <View style={{ flex: 1 }}>
-      <View>
-        <Center>
-          <Input
-            size="xl"
-            w="64"
-            marginTop="4"
-            marginBottom="6"
-            placeholder="Name of the sequence"
-            onChangeText={setTitle}
-            value={title}
-          />
-        </Center>
-      </View>
-      <ScrollView>
+    <Center style={{ flex: 1 }}>
+      <Input
+        size="xl"
+        w="64"
+        marginTop="4"
+        marginBottom="6"
+        placeholder="Name of the sequence"
+        onChangeText={setTitle}
+        value={title}
+      />
+      <ScrollView style={{ flex: 0.7 }}>
         <VStack space={3} alignItems="center">
           {steps.map((step) => (
             <Button
-            key={`${step.title.replace(' ','_')}_${step.time}`}
+              key={`${step.title.replace(" ", "_")}_${step.time}`}
               w="64"
-              colorScheme="secondary"
+              colorScheme="tertiary"
               rounded="md"
               shadow={3}
-            >{`${step.title} - ${step.time}`}</Button>
+            >
+              <Flex
+              w="230"
+
+                alignContent="center"
+                justifyContent="space-between"
+                direction="row"
+              >
+                <Text color='white' >{step.title}</Text>
+                <Text color='white'>{secsToTime(step.time)}</Text>
+              </Flex>
+            </Button>
           ))}
         </VStack>
       </ScrollView>
-      <View>
-        <Heading textAlign="center" mb="10">
-          <Button
-            w="64"
-            h="10"
-            marginTop="3"
-            onPress={() => setShowModal(true)}
-            rounded="md"
-            shadow={3}
-          >
-            Add step
-          </Button>
-          <Button
-            w="64"
-            h="10"
-            marginTop="3"
-            onPress={() => {
-              saveSequence();
-              navigation.navigate("Home");
-            }}
-            rounded="md"
-            variant="outline"
-            shadow={2}
-          >
-            Done
-          </Button>
-        </Heading>
+      <View style={{ flex: 0.3 }}>
+        <Button
+          w="64"
+          h="10"
+          marginTop="3"
+          onPress={() => setShowModal(true)}
+          rounded="md"
+          shadow={3}
+        >
+          Add step
+        </Button>
+        <Button
+          w="64"
+          h="10"
+          marginTop="3"
+          colorScheme="secondary"
+          onPress={() => {
+            saveSequence();
+            navigation.navigate("Home");
+          }}
+          rounded="md"
+          shadow={2}
+          isDisabled={title === "" || steps.length === 0}
+        >
+          Done
+        </Button>
       </View>
       {renderModal()}
-    </View>
+    </Center>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  timeEntry: {
+    borderWidth: 0,
+    fontSize: 60,
+  },
+  step: {
     flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: "bold",
-  },
-  separator: {
-    marginVertical: 30,
-    height: 1,
-    width: "80%",
+    flexDirection: "row",
+    justifyContent: "space-between",
   },
 });

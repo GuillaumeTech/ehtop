@@ -13,10 +13,9 @@ import {
 import React, { useEffect, useRef, useState } from "react";
 import { Button, Box } from "native-base";
 import { RootTabScreenProps } from "../types";
-import { Formik } from "formik";
 import { getSequence } from "../api/storage";
 import { useIsFocused } from "@react-navigation/native";
-
+import { secsToTime } from "../lib/time";
 export default function Create({
   navigation,
   route,
@@ -120,7 +119,7 @@ export default function Create({
               w="64"
               rounded="md"
               shadow={3}
-            >{`${step.step_name} - ${step.time}`}</Box>
+            >{`${step.step_name} - ${secsToTime(step.time)}`}</Box>
           ))}
         </>
       )
@@ -138,12 +137,12 @@ export default function Create({
 
   return (
     <View style={{ flex: 1 }}>
+      <Center>
       <View>
-        <Center>
+        
           <Heading size="xl" w="64" marginTop="4" marginBottom="6">
             {sequenceName}
           </Heading>
-        </Center>
       </View>
       <View>
         <VStack space={3} alignItems="center">
@@ -159,7 +158,7 @@ export default function Create({
               {steps[currentStepIndex].step_name}
             </Heading>
             <Heading w="64" marginTop="4" marginBottom="6">
-              {currentTime}
+              {secsToTime(currentTime)}
             </Heading>
           </Box>
           {renderUpNext()}
@@ -185,23 +184,9 @@ export default function Create({
           </Button>
         </Heading>
       </View>
+      </Center>
+
     </View>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: "bold",
-  },
-  separator: {
-    marginVertical: 30,
-    height: 1,
-    width: "80%",
-  },
-});

@@ -77,21 +77,11 @@ export function addSequence(name: string, steps: any[]) {
             (?, ?);`, [
                 name,
                 sequence_id])
-        console.log('ji',steps)
-        console.log('Ji',steps.reduce(
-            (previous, step) => ([
-              ...previous,
-              step.title,
-              step.time,
-              sequence_id,
-            ]),
-          []))
-
         tx.executeSql(`INSERT INTO steps (name, time, sequence_id)
         VALUES ${"(?,?,?), ".repeat(steps.length - 1)} (?,?,?);`, steps.reduce(
             (previous, step) => ([
                 ...previous,
-                step.title,
+                step.name,
                 step.time,
                 sequence_id,
               ]),
