@@ -16,13 +16,15 @@ import { RootTabScreenProps } from "../types";
 import { getSequence } from "../api/storage";
 import { useIsFocused } from "@react-navigation/native";
 import { secsToTime } from "../lib/time";
+import Step from "../components/Step";
+import { step } from "../types";
 export default function Create({
   navigation,
   route,
 }: RootTabScreenProps<"Run">) {
   const isFocused = useIsFocused(); //forces re-fetch when comming back to this page
 
-  const [steps, setSteps] = useState<Array<any>>([]);
+  const [steps, setSteps] = useState<Array<step>>([]);
   const { sequenceName, sequenceId } = route.params;
   const [currentStepIndex, setCurrentStepIndex] = useState<number>(0);
   const [currentTime, setCurrentTime] = useState<number>(0);
@@ -51,7 +53,6 @@ export default function Create({
 
   function runTaskTimer() {
     const interval = setInterval(() => {
-      console.log("HOH");
       setCurrentTime((currentTime: number) => {
         if (currentTime <= 0) {
           setCurrentStepIndex((currentStepIndex: number) => {
@@ -113,14 +114,14 @@ export default function Create({
           <Heading w="64" marginTop="4" marginBottom="6">
             Up next
           </Heading>
-          {steps.slice(currentStepIndex + 1).map((step) => (
-            <Box
-              key={`${step.step_name.replace(" ", "_")}_${step.time}`}
-              w="64"
-              rounded="md"
-              shadow={3}
-            >{`${step.step_name} - ${secsToTime(step.time)}`}</Box>
+          <VStack space={3} alignItems="center">
+          {steps.slice(currentStepIndex + 1).map(({name, time}) => (
+            <Step
+            name={name}
+            time={time}
+            />
           ))}
+         </VStack>
         </>
       )
     );
@@ -136,57 +137,51 @@ export default function Create({
   }
 
   return (
-    <View style={{ flex: 1 }}>
-      <Center>
-      <View>
-        
+      <Center style={{ flex: 1 }}>
+        <View>
           <Heading size="xl" w="64" marginTop="4" marginBottom="6">
             {sequenceName}
           </Heading>
-      </View>
-      <View>
-        <VStack space={3} alignItems="center">
-          <Box
-            key="head"
-            bg="primary.500"
-            w="64"
-            h="40"
-            rounded="md"
-            shadow={3}
-          >
-            <Heading w="64" marginTop="4" marginBottom="6">
-              {steps[currentStepIndex].step_name}
-            </Heading>
-            <Heading w="64" marginTop="4" marginBottom="6">
-              {secsToTime(currentTime)}
-            </Heading>
-          </Box>
-          {renderUpNext()}
-        </VStack>
-      </View>
-      <View>
-        <Heading textAlign="center" mb="10">
-          <Button
-            w="64"
-            h="10"
-            marginTop="3"
-            onPress={() => {
-              if (!running) {
-                runTaskTimer();
-                return;
-              }
-              stopTaskTimer();
-            }}
-            rounded="md"
-            shadow={3}
-          >
-            {!running ? "Start" : "Stop"}
-          </Button>
-        </Heading>
-      </View>
+        </View>
+        <View style={{ flex: 0.9 }}>
+          <VStack space={3} >
+            <Center
+              key="head"
+              bg="tertiary.500"
+              w="64"
+              h="40"
+              rounded="md"
+              shadow={3}
+              alignItems="center"
+            >
+              
+              <Heading color='white' marginTop="2" marginBottom="6">
+                {steps[currentStepIndex].name} 
+              </Heading>
+              <Heading  color='white' size='3xl' paddingTop='0'>
+                {secsToTime(currentTime)}
+              </Heading>
+            </Center>
+            {renderUpNext()}
+          </VStack>
+        </View>
+            <Button
+            style={{ flex: 0.07 }}
+              w="64"
+              h="10"
+              marginY='4'
+              onPress={() => {
+                if (!running) {
+                  runTaskTimer();
+                  return;
+                }
+                stopTaskTimer();
+              }}
+              rounded="md"
+              shadow={3}
+            >
+              {!running ? "Start" : "Stop"}
+            </Button>
       </Center>
-
-    </View>
   );
 }
-

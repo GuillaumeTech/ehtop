@@ -12,22 +12,21 @@ import {
 } from "native-base";
 import React, { useState } from "react";
 import { Button } from "native-base";
-import { RootTabScreenProps } from "../types";
+import { RootTabScreenProps, step } from "../types";
 import { Formik, setNestedObjectValues } from "formik";
 import { addSequence } from "../api/storage";
 import { secsToTime, timetoSec } from "../lib/time";
-
-type step = { title: string; time: number };
-type stepEntry = { title: string; seconds: string; minutes: string };
+import Step from "../components/Step";
+type stepEntry = { name: string; seconds: string; minutes: string };
 
 export default function Create({ navigation }: RootTabScreenProps<"Create">) {
   const [steps, setSteps] = useState<Array<step>>([]);
   const [showModal, setShowModal] = useState<boolean | undefined>(false);
   const [title, setTitle] = useState<string>("");
 
-  const onAddStep = ({ minutes, seconds, title }: stepEntry) => {
+  const onAddStep = ({ minutes, seconds, name }: stepEntry) => {
     const time = timetoSec(minutes, seconds);
-    setSteps([...steps, { title, time }]);
+    setSteps([...steps, { name, time }]);
   };
 
   const saveSequence = () => {
@@ -40,7 +39,7 @@ export default function Create({ navigation }: RootTabScreenProps<"Create">) {
         <Modal.CloseButton />
         <Modal.Header>Add a step</Modal.Header>
         <Formik
-          initialValues={{ title: "", seconds: "", minutes: "" }}
+          initialValues={{ name: "", seconds: "", minutes: "" }}
           onSubmit={(values) => onAddStep(values)}
         >
           {({ handleChange, handleBlur, handleSubmit, values }) => (
@@ -51,9 +50,9 @@ export default function Create({ navigation }: RootTabScreenProps<"Create">) {
                   marginX="4"
                   marginBottom="2"
                   size="xl"
-                  onChangeText={handleChange("title")}
-                  onBlur={handleBlur("title")}
-                  value={values.title}
+                  onChangeText={handleChange("name")}
+                  onBlur={handleBlur("name")}
+                  value={values.name}
                 />
                 <Flex direction="row">
                   <Input
@@ -109,7 +108,7 @@ export default function Create({ navigation }: RootTabScreenProps<"Create">) {
                   </Button>
                   <Button
                     isDisabled={
-                      !values.minutes || !values.seconds || !values.title
+                      !values.minutes || !values.seconds || !values.name
                     }
                     onPress={() => {
                       handleSubmit();
@@ -140,25 +139,8 @@ export default function Create({ navigation }: RootTabScreenProps<"Create">) {
       />
       <ScrollView style={{ flex: 0.7 }}>
         <VStack space={3} alignItems="center">
-          {steps.map((step) => (
-            <Button
-              key={`${step.title.replace(" ", "_")}_${step.time}`}
-              w="64"
-              colorScheme="tertiary"
-              rounded="md"
-              shadow={3}
-            >
-              <Flex
-              w="230"
-
-                alignContent="center"
-                justifyContent="space-between"
-                direction="row"
-              >
-                <Text color='white' >{step.title}</Text>
-                <Text color='white'>{secsToTime(step.time)}</Text>
-              </Flex>
-            </Button>
+          {steps.map(({ name, time }) => (
+            <Step name={name} time={time} />
           ))}
         </VStack>
       </ScrollView>
