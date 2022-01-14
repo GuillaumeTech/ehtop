@@ -2,7 +2,7 @@ import { Button, Flex, Text, Heading, View, ScrollView } from "native-base";
 import React from "react";
 import { secsToTime } from "../lib/time";
 
-export default function Step({ name, time, onPress = () => {} }) {
+export default function Step({ name, time, onPress = () => {} }: { name: string, time: number, onPress?: Function}) {
   return (
     <Button
       key={`${name}_${time}`}

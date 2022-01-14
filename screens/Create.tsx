@@ -10,7 +10,7 @@ import {
   View,
   ScrollView,
 } from "native-base";
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { Button } from "native-base";
 import { RootTabScreenProps, step } from "../types";
 import { Formik, setNestedObjectValues } from "formik";
@@ -23,7 +23,7 @@ export default function Create({ navigation }: RootTabScreenProps<"Create">) {
   const [steps, setSteps] = useState<Array<step>>([]);
   const [showModal, setShowModal] = useState<boolean | undefined>(false);
   const [title, setTitle] = useState<string>("");
-
+  const secondsRef = useRef();
   const onAddStep = ({ minutes, seconds, name }: stepEntry) => {
     const time = timetoSec(minutes, seconds);
     setSteps([...steps, { name, time }]);
@@ -33,6 +33,17 @@ export default function Create({ navigation }: RootTabScreenProps<"Create">) {
     addSequence(title, steps);
   };
 
+  const fillEmptyFields = (stepInfo: stepEntry) => {
+    const properStepInfo = stepInfo;
+    if (stepInfo.minutes === "") {
+      properStepInfo.minutes = "00";
+    }
+    if (stepInfo.seconds === "") {
+      properStepInfo.seconds = "00";
+    }
+    return properStepInfo;
+  };
+
   const renderModal = () => (
     <Modal isOpen={showModal} onClose={() => setShowModal(false)}>
       <Modal.Content maxWidth="400px">
@@ -40,7 +51,7 @@ export default function Create({ navigation }: RootTabScreenProps<"Create">) {
         <Modal.Header>Add a step</Modal.Header>
         <Formik
           initialValues={{ name: "", seconds: "", minutes: "" }}
-          onSubmit={(values) => onAddStep(values)}
+          onSubmit={(values) => onAddStep(fillEmptyFields(values))}
         >
           {({ handleChange, handleBlur, handleSubmit, values }) => (
             <>
@@ -56,6 +67,8 @@ export default function Create({ navigation }: RootTabScreenProps<"Create">) {
                 />
                 <Flex direction="row">
                   <Input
+                    returnKeyType="next"
+                    onSubmitEditing={() => {}}
                     marginY="2"
                     marginLeft="4"
                     width="45%"
@@ -63,11 +76,13 @@ export default function Create({ navigation }: RootTabScreenProps<"Create">) {
                     marginBottom="5"
                     placeholder="mm"
                     keyboardType="numeric"
+                    maxLength={2}
                     onChangeText={(text) => {
                       if (text === "") handleChange("minutes")(text);
                       else if (/^[0-9]+$/.test(text)) {
                         handleChange("minutes")(text);
                       }
+                      if (text.length == 2) secondsRef.current.focus();
                     }}
                     onBlur={handleBlur("minutes")}
                     value={values.minutes}
@@ -76,6 +91,7 @@ export default function Create({ navigation }: RootTabScreenProps<"Create">) {
                   />
                   <Text fontSize="65">:</Text>
                   <Input
+                    ref={secondsRef}
                     marginY="2"
                     size="2xl"
                     width="45%"
@@ -108,7 +124,8 @@ export default function Create({ navigation }: RootTabScreenProps<"Create">) {
                   </Button>
                   <Button
                     isDisabled={
-                      !values.minutes || !values.seconds || !values.name
+                      // we want name + minutre or seconds for it to be valid
+                      !(values.name && (values.minutes || values.seconds))
                     }
                     onPress={() => {
                       handleSubmit();
@@ -145,6 +162,16 @@ export default function Create({ navigation }: RootTabScreenProps<"Create">) {
         </VStack>
       </ScrollView>
       <View style={{ flex: 0.3 }}>
+      {/* <Button
+          w="64"
+          h="10"
+          marginTop="3"
+          onPress={() => setShowModal(true)}
+          rounded="md"
+          shadow={3}
+        >
+          pause inbetween 
+        </Button>*/}
         <Button
           w="64"
           h="10"
