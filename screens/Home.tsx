@@ -1,9 +1,18 @@
 import { StyleSheet } from "react-native";
-import { VStack, Center, Heading, View, ScrollView } from "native-base";
+import {
+  VStack,
+  Center,
+  Heading,
+  View,
+  ScrollView,
+  Flex,
+  Text,
+} from "native-base";
 import React, { useEffect, useState } from "react";
 import { Button } from "native-base";
 import { RootTabScreenProps } from "../types";
 import { getSequences } from "../api/storage";
+import { secsToTime } from "../lib/time";
 import { useIsFocused } from "@react-navigation/native";
 export default function Home({ navigation }: RootTabScreenProps<"Home">) {
   const [sequences, setSequences] = useState<Array<any>>([]);
@@ -40,10 +49,19 @@ export default function Home({ navigation }: RootTabScreenProps<"Home">) {
               rounded="md"
               shadow={3}
             >
-              {sequence.name}
+              <Flex
+                w="230"
+                alignContent="center"
+                justifyContent="space-between"
+                direction="row"
+              >
+                <Text bold color="white">
+                  {sequence.name}
+                </Text>
+                <Text color="white"> {secsToTime(sequence.total)}</Text>
+              </Flex>
             </Button>
           ))}
-          
         </VStack>
       </ScrollView>
       <Button
@@ -62,4 +80,3 @@ export default function Home({ navigation }: RootTabScreenProps<"Home">) {
     </Center>
   );
 }
-

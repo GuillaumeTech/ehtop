@@ -32,7 +32,6 @@ async function transactionWrapper(query: string, vars: Array<string>) {
 
 function initDB() {
     db.transaction((tx) => {
-      console.log("hoo");
     //   tx.executeSql(
     //     'drop table if exists sequences;'
     //   );
@@ -50,7 +49,8 @@ initDB();
 
 export async function getSequences() {
   try {
-    return await transactionWrapper( `select name, id from sequences`, [])
+    return await transactionWrapper( `select sequences.name as name, sequences.id as id, SUM(steps.time) as total from sequences INNER JOIN steps 
+    ON sequences.id = steps.sequence_id GROUP BY sequences.id`, [])
   } catch (e) {
     console.log(e);
   }
