@@ -147,7 +147,7 @@ export default function Create({
           <VStack space={3} >
             <Center
               key="head"
-              bg="tertiary.500"
+              bg={steps[currentStepIndex].name === 'Pause'? "muted.500": "tertiary.500"}
               w="64"
               h="40"
               rounded="md"

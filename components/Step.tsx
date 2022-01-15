@@ -2,12 +2,24 @@ import { Button, Flex, Text, Heading, View, ScrollView } from "native-base";
 import React from "react";
 import { secsToTime } from "../lib/time";
 
-export default function Step({ name, time, onPress = () => {} }: { name: string, time: number, onPress?: Function}) {
+export default function Step({
+  name,
+  time,
+  key,
+  bg,
+  onPress = () => {},
+}: {
+  name: string;
+  time: number;
+  key?: string;
+  bg?: string;
+  onPress?: Function;
+}) {
   return (
     <Button
-      key={`${name}_${time}`}
+      key={key}
       w="64"
-      bg="info.200"
+      bg={name === "Pause" ? "muted.200" : "info.200"}
       rounded="md"
       shadow={3}
       onPress={() => onPress()}
@@ -18,8 +30,8 @@ export default function Step({ name, time, onPress = () => {} }: { name: string,
         justifyContent="space-between"
         direction="row"
       >
-        <Text >{name}</Text>
-        <Text >{secsToTime(time)}</Text>
+        <Text>{name}</Text>
+        <Text>{secsToTime(time)}</Text>
       </Flex>
     </Button>
   );
