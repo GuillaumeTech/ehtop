@@ -1,15 +1,10 @@
 import { StyleSheet } from "react-native";
 
-import {
-  Input,
-  Text,
-  Modal,
-  Flex,
-} from "native-base";
+import { Input, Text, Modal, Flex } from "native-base";
 import React, { useRef } from "react";
 import { Button } from "native-base";
 import { Formik } from "formik";
-
+import { getSeconds, getMinutes } from "../lib/time";
 type stepEntry = { name: string; seconds: string; minutes: string };
 
 export default function TimeModal(props: {
@@ -18,8 +13,10 @@ export default function TimeModal(props: {
   isOpen: boolean | undefined;
   onClose: Function;
   onSubmit: Function;
+  name: string;
+  time: number;
 }) {
-  const { onSubmit, title, noNameEntry, isOpen, onClose } = props;
+  const { onSubmit, title, noNameEntry, isOpen, onClose, name, time } = props;
   const secondsRef = useRef();
 
   const fillEmptyFields = (stepInfo: stepEntry) => {
@@ -39,7 +36,11 @@ export default function TimeModal(props: {
         <Modal.CloseButton />
         <Modal.Header>{title}</Modal.Header>
         <Formik
-          initialValues={{ name: "", seconds: "", minutes: "" }}
+          initialValues={{
+            name: name || "",
+            seconds: time ? getSeconds(time) : "",
+            minutes: time ? getMinutes(time) : "",
+          }}
           onSubmit={(values) => onSubmit(fillEmptyFields(values))}
         >
           {({ handleChange, handleBlur, handleSubmit, values }) => (

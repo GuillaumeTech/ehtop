@@ -12,14 +12,12 @@ import {
 } from "native-base";
 import React, { useState, useRef, useEffect } from "react";
 import { Button } from "native-base";
-import { RootTabScreenProps, step } from "../types";
+import { RootTabScreenProps, stepEntry, step } from "../types";
 import { Formik, setNestedObjectValues } from "formik";
 import { addSequence } from "../api/storage";
 import { secsToTime, timetoSec } from "../lib/time";
 import Step from "../components/Step";
 import TimeModal from "../components/TimeModal";
-
-type stepEntry = { name: string; seconds: string; minutes: string };
 
 export default function Create({ navigation }: RootTabScreenProps<"Create">) {
   const [steps, setSteps] = useState<Array<step>>([]);
@@ -39,6 +37,14 @@ export default function Create({ navigation }: RootTabScreenProps<"Create">) {
     setSteps([...steps, { name, time }]);
   };
 
+  const onEditStep = (index: number, step: step) => {
+    setSteps([...steps.slice(0, index), step, ...steps.slice(index + 1)]);
+  };
+
+  const onDeleteStep = (index: number) => {
+    setSteps([...steps.slice(0, index), ...steps.slice(index + 1)]);
+  };
+
   const onSetPause = ({ minutes, seconds }: stepEntry) => {
     const time = timetoSec(minutes, seconds);
     setPauseTime(time);
@@ -51,7 +57,7 @@ export default function Create({ navigation }: RootTabScreenProps<"Create">) {
       properSteps = steps.reduce((prev, step, i) => {
         prev.push(step);
         if (pauseTime && i < steps.length - 1) prev.push(pauseStep);
-        return prev
+        return prev;
       }, []);
     }
     addSequence(title, properSteps);
@@ -72,15 +78,18 @@ export default function Create({ navigation }: RootTabScreenProps<"Create">) {
         <VStack space={3} alignItems="center">
           {steps.reduce((prev, { name, time }, i) => {
             prev.push(
-              <Step key={`${name}_${time}_${i}`} name={name} time={time} />
+              <Step
+                onDelete={() => onDeleteStep(i)}
+                onEdit={(step) => onEditStep(i, step)}
+                key={`${name}_${time}_${i}`}
+                name={name}
+                time={time}
+                allowEditMode={true}
+              />
             );
             if (pauseTime > 0 && i < steps.length - 1)
               prev.push(
-                <Step
-                  key={`pause_${i}`}
-                  name={"Pause"}
-                  time={pauseTime}
-                />
+                <Step key={`pause_${i}`} name={"Pause"} time={pauseTime} />
               );
             return prev;
           }, [])}
