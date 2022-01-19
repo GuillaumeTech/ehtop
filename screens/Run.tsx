@@ -1,9 +1,9 @@
 import { StyleSheet } from "react-native";
-
+import { activateKeepAwake, deactivateKeepAwake } from 'expo-keep-awake';
 import {
   VStack,
   Input,
-  Text,
+  Flex,
   Center,
   Modal,
   Heading,
@@ -13,7 +13,7 @@ import {
 import React, { useEffect, useRef, useState } from "react";
 import { Button, Box } from "native-base";
 import { RootTabScreenProps } from "../types";
-import { getSequence } from "../api/storage";
+import { getSequence, deleteSequence } from "../api/storage";
 import { useIsFocused } from "@react-navigation/native";
 import { secsToTime } from "../lib/time";
 import Step from "../components/Step";
@@ -52,12 +52,14 @@ export default function Create({
   }, [navigation]);
 
   function runTaskTimer() {
+    activateKeepAwake()
     const interval = setInterval(() => {
       setCurrentTime((currentTime: number) => {
         if (currentTime <= 0) {
           setCurrentStepIndex((currentStepIndex: number) => {
             if (currentStepIndex === steps.length - 1) {
               // last element
+              
               stopTaskTimer();
               return currentStepIndex;
             } else {
@@ -75,11 +77,20 @@ export default function Create({
   }
 
   function stopTaskTimer() {
+    deactivateKeepAwake()
+
     if (intervalRef.current) {
       setRunning(false);
       clearInterval(intervalRef.current);
     }
   }
+
+  function deleteTheSequence(id: string) {
+    deleteSequence(id)
+    navigation.navigate("Home");
+  }
+
+  
 
   function renderEndOfSequence() {
     return (
@@ -139,6 +150,11 @@ export default function Create({
   return (
       <Center style={{ flex: 1 }}>
         <View>
+          <Flex direction='row-reverse'>
+            <Button marginLeft='2'  colorScheme="danger" onPress={()=>deleteTheSequence(sequenceId)}>Delete</Button>
+            <Button>Edit</Button>
+
+          </Flex>
           <Heading size="xl" w="64" marginTop="4" marginBottom="6">
             {sequenceName}
           </Heading>

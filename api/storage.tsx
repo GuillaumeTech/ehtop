@@ -58,10 +58,18 @@ export async function getSequences() {
 
 export async function getSequence(id: string) {
   try {
-    console.log('ID', id)
     // return  transactionWrapper( `select * from steps;`,[])
     return  transactionWrapper( `select steps.name as name, sequences.name as sequence_name, steps.time as time from sequences INNER JOIN steps 
     ON sequences.id = steps.sequence_id where steps.sequence_id = ?`, [id])
+  } catch (e) {
+    console.log(e);
+  }
+}
+
+
+export async function deleteSequence(id: string) {
+  try {
+    return  transactionWrapper( `DELETE FROM sequences WHERE id = ?`, [id])
   } catch (e) {
     console.log(e);
   }
