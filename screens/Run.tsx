@@ -18,8 +18,15 @@ import { useIsFocused } from "@react-navigation/native";
 import { secsToTime } from "../lib/time";
 import Step from "../components/Step";
 import ConfirmDialog from "../components/ConfirmDialog";
-
 import { step } from "../types";
+import {
+  play321BipSound,
+  playEndBipSound,
+  playStartBipSound,
+  loadSounds,
+  unloadSounds,
+} from "../api/sounds";
+
 export default function Create({
   navigation,
   route,
@@ -34,8 +41,8 @@ export default function Create({
   const [loading, setLoading] = useState(true);
   const [confirmOpen, setConfirmOpen] = useState(false);
 
-
   const intervalRef = useRef<any>(null);
+
   const isAtLastElement = currentStepIndex === steps.length - 1;
   useEffect(() => {
     async function retreiveSequence() {
@@ -48,6 +55,11 @@ export default function Create({
   }, []);
 
   useEffect(() => {
+    loadSounds();
+    return () => unloadSounds();
+  }, []);
+
+  useEffect(() => {
     const unsubscribe = navigation.addListener("beforeRemove", () => {
       stopTaskTimer(); // cleanup the interval when leaving the screen
     });
@@ -57,20 +69,25 @@ export default function Create({
 
   function runTaskTimer() {
     activateKeepAwake();
+    playStartBipSound();
     const interval = setInterval(() => {
       setCurrentTime((currentTime: number) => {
         if (currentTime <= 0) {
           setCurrentStepIndex((currentStepIndex: number) => {
             if (currentStepIndex === steps.length - 1) {
               // last element
-
+              playEndBipSound();
               stopTaskTimer();
               return currentStepIndex;
             } else {
+              playStartBipSound();
               setCurrentTime(steps[currentStepIndex + 1].time);
               return currentStepIndex + 1;
             }
           });
+        }
+        if (currentTime < 4) {
+          play321BipSound();
         }
         return currentTime - 1;
       }); // count every sec
@@ -206,11 +223,12 @@ export default function Create({
         {!running ? "Start" : "Stop"}
       </Button>
       <ConfirmDialog
-      title="Are you sure?"
-      content="This will delete this sequence, there is no way of getting it back"
-      open={confirmOpen}
-      onClose={()=> setConfirmOpen(false)}
-      onConfirm={() => deleteTheSequence(sequenceId)}/>
+        title="Are you sure?"
+        content="This will delete this sequence, there is no way of getting it back"
+        open={confirmOpen}
+        onClose={() => setConfirmOpen(false)}
+        onConfirm={() => deleteTheSequence(sequenceId)}
+      />
     </Center>
   );
 }
