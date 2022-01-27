@@ -1,3 +1,5 @@
+
+import 'reflect-metadata';
 import { StatusBar } from "expo-status-bar";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import useCachedResources from "./hooks/useCachedResources";

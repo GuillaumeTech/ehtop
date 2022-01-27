@@ -40,5 +40,5 @@ export type RootTabScreenProps<Screen extends keyof RootTabParamList> =
   >;
 
 
-export type step = { name: string; time: number };
-export type stepEntry = { name: string; seconds: string; minutes: string };
+export type StepOjb= { name: string; time: number };
+export type StepEntry = { name: string; seconds: string; minutes: string };
