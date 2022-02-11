@@ -8,22 +8,27 @@ import {
   Flex,
   Text,
 } from "native-base";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { Button } from "native-base";
 import { RootTabScreenProps } from "../types";
-import { getSequences } from "../api/storage";
+// import { getSequences } from "../api/storage";
 import { secsToTime } from "../lib/time";
 import { useIsFocused } from "@react-navigation/native";
+import { StorageContext } from "../components/contexts/StorageContext";
+import { Step } from "../db/stepModel";
+
 export default function Home({ navigation }: RootTabScreenProps<"Home">) {
-  const [sequences, setSequences] = useState<Array<any>>([]);
+  const { sequences, refreshSequences } = useContext(StorageContext);
   const isFocused = useIsFocused(); //forces re-fetch when comming back to this page
+
   useEffect(() => {
-    async function retreiveSequences() {
-      const seq = await getSequences();
-      setSequences(seq);
-    }
-    retreiveSequences();
+    refreshSequences(); // maybe not that usefull to investigate later on
   }, [isFocused]);
+
+  function getTotalTime(steps: [Step]) {
+    // seems a bit painfull to do in sql with type orm as it would lose the object mapping i guess
+    return steps.reduce((sum, step) => sum + step.time, 0);
+  }
 
   return (
     <Center style={{ flex: 1 }}>
@@ -34,7 +39,7 @@ export default function Home({ navigation }: RootTabScreenProps<"Home">) {
       </View>
       <ScrollView style={{ flex: 0.9 }}>
         <VStack space={4} alignItems="center">
-          {sequences.map((sequence) => (
+          {sequences.map((sequence, index) => (
             <Button
               w="64"
               h="10"
@@ -43,6 +48,7 @@ export default function Home({ navigation }: RootTabScreenProps<"Home">) {
                 navigation.navigate("Run", {
                   sequenceName: sequence.name,
                   sequenceId: sequence.id,
+                  sequenceIndex: index,
                 })
               }
               key={sequence.name.replace(" ", "-")}
@@ -58,7 +64,10 @@ export default function Home({ navigation }: RootTabScreenProps<"Home">) {
                 <Text bold color="white">
                   {sequence.name}
                 </Text>
-                <Text color="white"> {secsToTime(sequence.total)}</Text>
+                <Text color="white">
+                  {" "}
+                  {secsToTime(getTotalTime(sequence.steps))}
+                </Text>
               </Flex>
             </Button>
           ))}

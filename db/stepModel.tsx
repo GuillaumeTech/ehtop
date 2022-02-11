@@ -1,12 +1,9 @@
+import { ManyToOne, Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Sequence } from "./sequenceModel";
 
-   
-import { ManyToOne, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
-import { Sequence } from './sequenceModel';
-
-
-@Entity('steps')
+@Entity("steps")
 export class Step {
-  @PrimaryGeneratedColumn('increment')
+  @PrimaryGeneratedColumn("increment")
   id: number;
 
   @Column()
@@ -15,6 +12,9 @@ export class Step {
   @Column()
   time: number;
 
-  @ManyToOne(() => Sequence, sequence => sequence.steps)
+  @Column()
+  position: number;
+
+  @ManyToOne((type) => Sequence, (sequence) => sequence.steps)
   sequence: Sequence;
 }

@@ -10,16 +10,18 @@ import {
   View,
   ScrollView,
 } from "native-base";
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import { Button } from "native-base";
 import { RootTabScreenProps, stepEntry, step } from "../types";
 import { Formik, setNestedObjectValues } from "formik";
-import { addSequence } from "../api/storage";
+import { StorageContext } from "../components/contexts/StorageContext";
 import { secsToTime, timetoSec } from "../lib/time";
 import Step from "../components/Step";
 import TimeModal from "../components/TimeModal";
 
 export default function Create({ navigation }: RootTabScreenProps<"Create">) {
+  const { addSequence } = useContext(StorageContext);
+
   const [steps, setSteps] = useState<Array<step>>([]);
   const [pauseTime, setPauseTime] = useState<number>(0);
 
@@ -50,7 +52,7 @@ export default function Create({ navigation }: RootTabScreenProps<"Create">) {
     setPauseTime(time);
   };
 
-  const saveSequence = () => {
+  const saveSequence = async () => {
     let properSteps = steps;
     if (pauseTime) {
       const pauseStep = { name: "Pause", time: pauseTime };
@@ -60,7 +62,7 @@ export default function Create({ navigation }: RootTabScreenProps<"Create">) {
         return prev;
       }, []);
     }
-    addSequence(title, properSteps);
+    await addSequence(title, properSteps);
   };
 
   return (
@@ -124,8 +126,8 @@ export default function Create({ navigation }: RootTabScreenProps<"Create">) {
             marginTop="3"
             colorScheme="tertiary"
             marginLeft="4"
-            onPress={() => {
-              saveSequence();
+            onPress={async () => {
+              await saveSequence();
               navigation.navigate("Home");
             }}
             rounded="md"
