@@ -10,10 +10,10 @@ import {
   View,
   ScrollView,
 } from "native-base";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useContext} from "react";
 import { Button, Box } from "native-base";
 import { RootTabScreenProps } from "../types";
-import { getSequence, deleteSequence } from "../api/storage";
+import { StorageContext } from "../components/contexts/StorageContext";
 import { useIsFocused } from "@react-navigation/native";
 import { secsToTime } from "../lib/time";
 import Step from "../components/Step";
@@ -25,9 +25,10 @@ export default function Create({
   route,
 }: RootTabScreenProps<"Run">) {
   const isFocused = useIsFocused(); //forces re-fetch when comming back to this page
+  const { sequences, deleteSequence } = useContext(StorageContext)
 
   const [steps, setSteps] = useState<Array<step>>([]);
-  const { sequenceName, sequenceId } = route.params;
+  const { sequenceName, sequenceId, sequenceIndex } = route.params;
   const [currentStepIndex, setCurrentStepIndex] = useState<number>(0);
   const [currentTime, setCurrentTime] = useState<number>(0);
   const [running, setRunning] = useState(false);
@@ -39,9 +40,9 @@ export default function Create({
   const isAtLastElement = currentStepIndex === steps.length - 1;
   useEffect(() => {
     async function retreiveSequence() {
-      const seq = await getSequence(sequenceId);
-      setSteps(seq);
-      setCurrentTime(seq[0].time);
+      const {steps} = sequences[sequenceIndex]
+      setSteps(steps);
+      setCurrentTime(steps[0].time);
       setLoading(false);
     }
     retreiveSequence();

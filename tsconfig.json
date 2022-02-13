@@ -1,6 +1,10 @@
 {
   "extends": "expo/tsconfig.base",
   "compilerOptions": {
+    "experimentalDecorators": true,
     "strict": true
-  }
+  },
+  "emitDecoratorMetadata": true,
+  "experimentalDecorators": true,
+  "strictPropertyInitialization": false
 }
