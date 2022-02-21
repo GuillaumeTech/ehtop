@@ -129,8 +129,8 @@ export default function Create({
             Up next
           </Heading>
           <VStack space={3} alignItems="center">
-            {steps.slice(currentStepIndex + 1).map(({ name, time }) => (
-              <Step name={name} time={time} />
+            {steps.slice(currentStepIndex + 1).map(({ name, time }, index) => (
+              <Step key={`${name}_${time}_${index}`} name={name} time={time} />
             ))}
           </VStack>
         </>

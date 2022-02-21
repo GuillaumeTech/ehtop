@@ -7,7 +7,6 @@ import { stepEntry } from "../types";
 export default function Step({
   name,
   time,
-  key,
   bg,
   allowEditMode = false,
   onDelete,
@@ -15,7 +14,6 @@ export default function Step({
 }: {
   name: string;
   time: number;
-  key?: string;
   bg?: string;
   allowEditMode?: boolean;
   onDelete: Function;
@@ -79,7 +77,6 @@ export default function Step({
 
   return (
     <Button
-      key={key}
       w="64"
       bg={name === "Pause" || editMode ? "muted.200" : "info.200"}
       rounded="md"

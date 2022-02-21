@@ -25,6 +25,7 @@ export type StorageContext = {
   deleteSequence: (id: string) => void;
   addSequence: (name: string, steps: StepOjb[]) => void;
   getSequence: (id: string) => Promise<Sequence | undefined>;
+  ready: Boolean;
 };
 
 export const StorageContext = createContext<StorageContext>({
@@ -34,12 +35,13 @@ export const StorageContext = createContext<StorageContext>({
   addSequence: () => undefined,
   refreshSequences: () => undefined,
   getSequence: () => undefined,
+  ready: false,
 });
 
 export const StorageContextProvider: React.FC = ({ children }) => {
   const [connection, setConnection] = useState<Connection | null>(null);
   const [sequences, setSequences] = useState<[Sequence] | []>([]);
-
+const [ ready, setReady] = useState<Boolean>(false);
   const connect = useCallback(async () => {
     const createdConnection = await createConnection({
       type: "expo",
@@ -60,7 +62,8 @@ export const StorageContextProvider: React.FC = ({ children }) => {
       connect();
     }
     if (connection) {
-      refreshSequences;
+      refreshSequences();
+      setReady(true)
     }
   }, [connect, connection]);
 
@@ -75,8 +78,6 @@ export const StorageContextProvider: React.FC = ({ children }) => {
 
   async function getSequences() {
     try {
-      // const entityManager = connection?.manager;
-
       const result = await connection
         ?.createQueryBuilder(Sequence, "sequence")
         .leftJoinAndSelect("sequence.steps", "step")
@@ -156,6 +157,7 @@ export const StorageContextProvider: React.FC = ({ children }) => {
         addSequence,
         refreshSequences,
         getSequence,
+        ready,
       }}
     >
       {children}
