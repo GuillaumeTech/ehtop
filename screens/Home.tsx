@@ -16,9 +16,10 @@ import { secsToTime } from "../lib/time";
 import { useIsFocused } from "@react-navigation/native";
 import { StorageContext } from "../components/contexts/StorageContext";
 import { Step } from "../db/stepModel";
+import AppLoading from 'expo-app-loading';
 
 export default function Home({ navigation }: RootTabScreenProps<"Home">) {
-  const { sequences, refreshSequences } = useContext(StorageContext);
+  const { sequences, refreshSequences, ready } = useContext(StorageContext);
   const isFocused = useIsFocused(); //forces re-fetch when comming back to this page
 
   useEffect(() => {
@@ -27,9 +28,14 @@ export default function Home({ navigation }: RootTabScreenProps<"Home">) {
 
   function getTotalTime(steps: [Step]) {
     // seems a bit painfull to do in sql with type orm as it would lose the object mapping i guess
+    // update: actually it would not so this is a 
+    // TO-DO
     return steps.reduce((sum, step) => sum + step.time, 0);
   }
-
+if (!ready){
+  console.log('eh')
+  return <AppLoading/>
+}
   return (
     <Center style={{ flex: 1 }}>
       <View>

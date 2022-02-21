@@ -13,9 +13,8 @@ import {
 import React, { useState, useContext, useEffect } from "react";
 import { Button } from "native-base";
 import { RootTabScreenProps, stepEntry, step } from "../types";
-import { Formik, setNestedObjectValues } from "formik";
 import { StorageContext } from "../components/contexts/StorageContext";
-import { secsToTime, timetoSec } from "../lib/time";
+import { timetoSec } from "../lib/time";
 import Step from "../components/Step";
 import TimeModal from "../components/TimeModal";
 
