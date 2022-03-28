@@ -7,7 +7,6 @@
     "icon": "./assets/images/icon.png",
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
-    "primarycolor":"#1BDE7A",
     "splash": {
       "image": "./assets/images/splash.png",
       "resizeMode": "contain",
@@ -16,12 +15,11 @@
     "updates": {
       "fallbackToCacheTimeout": 0
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "ios": {
       "buildNumber": "0.1.0",
-      "supportsTablet": false
+      "supportsTablet": false,
+      "bundleIdentifier": "com.guillaumetech.kronometers"
     },
     "android": {
       "versionCode": 1,
@@ -35,6 +33,6 @@
     },
     "packagerOpts": {
       "config": "metro.config.js"
-    }    
+    }
   }
 }

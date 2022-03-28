@@ -1,4 +1,9 @@
-module.exports = {
+const { getDefaultConfig } = require('@expo/metro-config');
+const {merge} = require('lodash')
+const defaultConfig = getDefaultConfig(__dirname);
+
+// not the best way to do it but it works
+const custom = {
     transformer: {
      minifierConfig: {
        keep_classnames: true, // FIX typeorm
@@ -22,3 +27,5 @@ module.exports = {
      },
    },
 };
+
+module.exports = merge(defaultConfig,custom);
